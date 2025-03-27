@@ -282,7 +282,7 @@ def follow_up(state: GraphState) -> GraphState:
         2. Mention the name of the plan prominently
         3. Highlight the key advantages of this plan compared to others (using the plan details)
         4. Include specific benefits like data amount, voice minutes, and any special features
-        5. End with "Would you like to create this plan now like asking for onformation
+        5. End with the plan shall be created shortly 
         6. Be minimal 
         7. Format the message nicely with some emphasis on key details
 
