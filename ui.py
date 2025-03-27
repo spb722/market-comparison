@@ -4,9 +4,10 @@ import pandas as pd
 from typing import List, Dict, Any
 import time
 import json
+import os
+from PIL import Image
 
 # Import necessary modules from the chatbot code
-# Note: Make sure your LangGraph chatbot code is in a file named 'telecom_bot.py'
 from main import build_graph, GraphState
 
 # Initialize session state variables
@@ -28,25 +29,56 @@ if "telecom_data" not in st.session_state:
 if "last_response" not in st.session_state:
     st.session_state.last_response = None
 
+if "show_table" not in st.session_state:
+    st.session_state.show_table = False
+
+if "initialized" not in st.session_state:
+    st.session_state.initialized = False
+
 # Set up the Streamlit page
-st.set_page_config(page_title="Telecom Product Chatbot", page_icon="📱")
-st.title("Telecom Product Chatbot")
+st.set_page_config(page_title="Market Analysis", page_icon="📊")
+
+# Display logo from file path
+try:
+    # Define the path to your logo image relative to this file
+    # Replace 'logo.png' with your actual logo filename
+    logo_path = "logo.png"  # You'll need to place your logo.png file in the same directory as this script
+
+    # Check if the file exists
+    if os.path.exists(logo_path):
+        # Display the logo image
+        logo = Image.open(logo_path)
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.image(logo, use_container_width=True)
+    else:
+        st.title("Market Analysis")
+        st.warning(f"Logo file not found at {logo_path}")
+except Exception as e:
+    st.title("Market Analysis")
+    st.error(f"Error loading logo: {str(e)}")
+
+# Add subtitle
+st.markdown(
+    "<h3 style='text-align: center; color: #666; margin-top: -10px;'>AARYA - AUTO AI RESPONDER AT YOUR ASSISTANCE</h3>",
+    unsafe_allow_html=True)
+st.markdown("---")
 
 # Create sidebar with information
 with st.sidebar:
     st.header("About")
     st.markdown("""
-    This chatbot helps you find telecom products based on your needs.
+    This AI assistant helps you analyze telecom market data and products.
 
     **Features:**
-    - Search for telecom bundles
-    - Get product recommendations
-    - Select a product to purchase
+    - Competitor analysis
+    - Product comparisons
+    - Strategic recommendations
 
     **Example queries:**
     - "Show me the latest Telecel Zimbabwe data bundles"
-    - "I need a voice and data combo bundle"
-    - "What are the cheapest daily data options?"
+    - "Compare NetOne and Telecel voice packages"
+    - "What should Econet do to compete with NetOne's pricing?"
     """)
 
     # Reset conversation button
@@ -56,21 +88,33 @@ with st.sidebar:
         st.session_state.extraction_completed = False
         st.session_state.telecom_data = None
         st.session_state.last_response = None
+        st.session_state.show_table = False
+        st.session_state.initialized = False
         st.rerun()
+
+# Initialize with welcome message
+if not st.session_state.initialized:
+    welcome_message = """
+    👋 Welcome to the Telecom Market Analysis assistant!
+
+    What would you like me to analyze today?
+    """
+    st.session_state.messages.append({"role": "assistant", "content": welcome_message})
+    st.session_state.initialized = True
 
 # Display chat messages
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Display telecom data table if available - this needs to be after messages but before input
-if st.session_state.telecom_data is not None:
-    st.subheader("Available Telecom Plans")
+# Display telecom data table if available
+if st.session_state.telecom_data is not None and st.session_state.show_table:
+    st.subheader("Competitive Analysis")
     st.dataframe(st.session_state.telecom_data, use_container_width=True)
     st.markdown("---")  # Add a separator
 
 # Get user input
-prompt = st.chat_input("Ask about telecom products...")
+prompt = st.chat_input("Ask about telecom market and products...")
 
 # Process user input
 if prompt:
@@ -84,7 +128,7 @@ if prompt:
     # Display assistant response with a spinner while processing
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
-        message_placeholder.markdown("Thinking...")
+        message_placeholder.markdown("Analyzing market data...")
 
         try:
             # Prepare input for the graph
@@ -102,7 +146,7 @@ if prompt:
                 input_data["followup_type"] = "selection"  # Set followup_type for product selection
 
             # Show a progress indicator during processing
-            with st.spinner("Processing..."):
+            with st.spinner("Analyzing telecom market data..."):
                 # Invoke the graph with the input data
                 thread_config = {"configurable": {"thread_id": st.session_state.conversation_id}}
                 result = st.session_state.graph.invoke(input_data, config=thread_config)
@@ -126,22 +170,21 @@ if prompt:
                         })
                     # Create the DataFrame
                     st.session_state.telecom_data = pd.DataFrame(telecom_data)
-                    # Log that we've updated the DataFrame
+                    st.session_state.show_table = True
                     print(f"Updated telecom_data with {len(telecom_data)} records")
 
                 # Extract the response message
                 if "messages" in result and result["messages"]:
                     # Get the most recent message
-                    if isinstance(result["messages"][0], str):
+                    if isinstance(result["messages"][-1], str):
                         bot_response = result["messages"][-1]
                     else:
                         # If it's not a string, try to get the content property
                         bot_response = getattr(result["messages"][-1], "content", str(result["messages"][-1]))
 
-                    # For debugging
                     print(f"Received message from graph: {bot_response[:100]}...")
                 else:
-                    bot_response = "I'm sorry, I couldn't process that request."
+                    bot_response = "I'm sorry, I couldn't process that market analysis request."
 
                 # Update extraction_completed state if present in result
                 if "extraction_completed" in result:
@@ -161,12 +204,12 @@ if prompt:
                 # Add assistant response to chat history
                 st.session_state.messages.append({"role": "assistant", "content": bot_response})
 
-                # Only force a rerun if this is the first extraction (not a follow-up)
-                if "formatted_data" in result and not st.session_state.extraction_completed:
+                # Force a rerun to show the table immediately after first extraction
+                if "formatted_data" in result and st.session_state.show_table:
                     st.rerun()
 
         except Exception as e:
-            error_message = f"An error occurred: {str(e)}"
+            error_message = f"An error occurred during analysis: {str(e)}"
             message_placeholder.markdown(error_message)
             st.session_state.messages.append({"role": "assistant", "content": error_message})
             st.error(error_message)
@@ -181,6 +224,9 @@ st.markdown("""
 .stDataFrame {
     margin-top: 20px;
     margin-bottom: 20px;
+}
+.stChatMessage {
+    padding: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
