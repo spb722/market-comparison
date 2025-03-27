@@ -367,31 +367,38 @@ def follow_up(state: GraphState) -> GraphState:
 
 # Function to search with Tavily
 def search_with_tavily(state: GraphState) -> GraphState:
-    """Search for relevant URLs using Tavily."""
-
+    """Search for relevant telecom information using OpenAI's search capability."""
+    
     query = state["query"]
-    result =""""
-    Based on the available data, here's a comparative analysis of telecom product offerings from NetOne and Telecel, highlighting their best-priced plans:
-
-| Provider | Plan Details                                                                 | Price (ZWL$) | Observations                                                                                   | Recommended Action for Econet                                                                 | Best Suited Econet Plan Equivalent |
-|----------|------------------------------------------------------------------------------|--------------|------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|------------------------------------|
-| NetOne   | 1GB Hourly Data Bundle (1 Hour Validity)                                     | 250.00       | Competitive pricing for short-term high data usage.                                            | Consider introducing similar short-term high-data bundles to cater to users with immediate needs. | N/A                                |
-| NetOne   | 1GB Daily Data Bundle (Valid until midnight on the day of purchase)          | 1.00 USD     | Affordable daily data option; however, limited to same-day usage.                              | Explore offering a daily 1GB bundle with extended validity to provide more flexibility.        | N/A                                |
-| NetOne   | 10GB One-Fi Bundle (30 Days Validity)                                        | 6,500.00     | Cost-effective for heavy data users over a month.                                              | Assess the feasibility of introducing similar large data bundles to attract heavy data consumers. | N/A                                |
-| Telecel  | Red Bronze Package: 100 On-net Minutes, 100MB WhatsApp, 100MB Facebook, 500MB Data, 40 SMS, 10 Free Minutes | N/A          | Comprehensive package combining voice, data, and social media access.                          | Develop bundled packages that integrate voice, data, and social media to enhance value for customers. | N/A                                |
-| Telecel  | Red Platinum Package: 2,000 On-net Minutes, 1,500 Off-net Minutes, 1,200MB WhatsApp, 1,200MB Facebook, 6,000MB Data, 700 SMS | N/A          | Extensive package suitable for heavy users requiring substantial voice and data allocations.   | Consider offering premium packages with extensive allocations to cater to high-usage customers. | N/A                                |
-
-**Actionable Insights:**
-
-1. **Short-Term High-Data Bundles:** NetOne's hourly and daily data bundles offer flexibility for users needing substantial data for short periods. Econet should evaluate the demand for such offerings and consider introducing similar packages to remain competitive.
-
-2. **Comprehensive Bundled Packages:** Telecel's Red packages provide a mix of voice, data, and social media access, catering to diverse user needs. Econet could develop similar bundled packages to enhance customer value and satisfaction.
-
-3. **Large Data Bundles for Heavy Users:** NetOne's One-Fi bundles are attractive to heavy data users. Econet should assess the feasibility of introducing large data bundles to attract and retain this segment of customers.
-
-By aligning product offerings with market demands and competitor strategies, Econet can enhance its competitive position and better serve its customer base. 
-
-    """
+    print(f"searchin internet for {query} with openai web search")
+    
+    from openai import OpenAI
+    client = OpenAI()
+    
+    completion = client.chat.completions.create(
+        model="gpt-4o-search-preview",
+        web_search_options={
+            "search_context_size": "medium",
+        },
+        messages=[
+            {
+                "role": "assistant", 
+                "content": "You are an expert telecom consultant working for Econet Zimbabwe. Your task is to analyze telecom product offerings from competitors like Telecel,"
+                           " NetOne, and other telecom providers which the user shall provide found via internet search."
+                           " Your goal is to find the best-priced offerings. "
+        "You must present your findings clearly in a comparison table with columns for Provider, Plan Details, Price, Observations, "
+        "Recommended Action for Econet, and Best Suited Econet Plan Equivalent. Provide clear explanations and actionable insights."
+            },
+            {
+                "role": "user",
+                "content": query + " Your goal is to find the best-priced offerings. "
+        "You must present your findings clearly in a comparison table with columns for Provider, Plan Details, Price, Observations, "
+        "Recommended Action for Econet, and Best Suited Econet Plan Equivalent. Provide clear explanations and actionable insights."
+            }
+        ],
+    )
+    
+    result = completion.choices[0].message.content
     return {"search_results": result}
 
 
