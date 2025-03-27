@@ -394,6 +394,7 @@ def search_with_tavily(state: GraphState) -> GraphState:
                 "content": query + " Your goal is to find the best-priced offerings. "
         "You must present your findings clearly in a comparison table with columns for Provider, Plan Details, Price, Observations, "
         "Recommended Action for Econet, and Best Suited Econet Plan Equivalent. Provide clear explanations and actionable insights."
+                "do multiple web search to get all the products "
             }
         ],
     )
