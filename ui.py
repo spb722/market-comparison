@@ -76,9 +76,9 @@ with st.sidebar:
     - Strategic recommendations
 
     **Example queries:**
-    - "Show me the latest Telecel Zimbabwe data bundles"
+    - "can you recommend proper plans for Econet based on telecel and netone data in a comparison table with observations and why it should be done?"
     - "Compare NetOne and Telecel voice packages"
-    - "What should Econet do to compete with NetOne's pricing?"
+  
     """)
 
     # Reset conversation button
