@@ -76,7 +76,7 @@ with st.sidebar:
     - Strategic recommendations
 
     **Example queries:**
-    - "can you recommend proper plans for Econet based on telecel and netone data in a comparison table with observations and why it should be done?"
+    - "can you recommend proper plans for Econet based on telecel and netone data "
     - "Compare NetOne and Telecel voice packages"
   
     """)
