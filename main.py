@@ -608,7 +608,7 @@ def format_recommendations(state: GraphState) -> GraphState:
     Econet offers superior network coverage compared to competitors, with 98% population coverage nationwide. The recommended plans provide better value with longer validity periods and more flexible usage terms than similar competitor offerings.
 
     **Why These Plans:**
-    These plans were selected because they offer the best match to your needs while providing better overall value compared to competitor options. Econet's Premium Bundle gives you significantly more data and minutes at a similar price point to competitor alternatives, while our Voice & Data Combo provides the most balanced allocation for typical users.
+    These plans were selected because they offer the best match to your needs while providing better overall value compared to competitor options. Telecom's Premium Bundle gives you significantly more data and minutes at a similar price point to competitor alternatives, while our Voice & Data Combo provides the most balanced allocation for typical users.
 
     YOUR RECOMMENDATIONS MUST FOLLOW THESE RULES:
     1. Include only actual Econet plans from the Best_Suited_Plan_Equivalent field
@@ -622,7 +622,7 @@ def format_recommendations(state: GraphState) -> GraphState:
        - 🌐 for data
        - 📲 for social media/WhatsApp
        - ⏱️ for validity period
-    7. Include "Observations" section highlighting Econet's advantages over competitors
+    7. Include "Observations" section highlighting Telecom's advantages over competitors
     8. Include "Why These Plans" section explaining why these Econet plans are better choices
 
     IMPORTANT GUIDELINES:
