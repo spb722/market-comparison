@@ -204,7 +204,7 @@ def follow_up(state: GraphState) -> GraphState:
 
         # Use structured output to extract the selection
         selection_prompt = f"""
-        Based on the user's message, determine which Telecom plan they want to select.
+        Based on the user's message, determine which   plan they want to select.
 
         Recommendations provided earlier:
         {formatted_text}
@@ -393,7 +393,7 @@ def search_with_tavily(state: GraphState) -> GraphState:
                 "role": "user",
                 "content": query + " Your goal is to find the best-priced offerings. "
         "You must present your findings clearly in a comparison table with columns for Provider, Plan Details, Price, Observations, "
-        "Recommended Action for Telecom, and Best Suited Telecom Plan Equivalent. Provide clear explanations and actionable insights."
+        "Recommended Action for  , and Best Suited   Plan Equivalent. Provide clear explanations and actionable insights."
                 "do multiple web search to get all the products "
             }
         ],
@@ -410,8 +410,8 @@ class TelecomPlan(BaseModel):
     Plan_Details: str = Field(description="Details of the telecom plan")
     Price: str = Field(description="Price of the plan")
     Observations: str = Field(description="Key observations about the plan")
-    Recommended_Action_for_Telecom: str = Field(description="Recommended action for Telecom based on this plan")
-    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent Telecom plan")
+    Recommended_Action_for_Telecom: str = Field(description="Recommended action for   based on this plan")
+    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent   plan")
 
 class TelecomPlans(BaseModel):
     plans: List[TelecomPlan]
@@ -434,24 +434,24 @@ def extract_content(state: Dict[str, str]) -> Dict[str, Any]:
         # Check if Best_Suited_Plan_Equivalent is missing or empty
         if not hasattr(plan,
                        'Best_Suited_Plan_Equivalent') or not plan.Best_Suited_Plan_Equivalent or plan.Best_Suited_Plan_Equivalent == "N/A":
-            # Create prompt for the LLM to generate Telecom plan equivalent
+            # Create prompt for the LLM to generate   plan equivalent
             Telecom_plan_prompt = f"""
-            As a telecom expert, suggest the best Telecom plan equivalent for this competitor plan:
+            As a telecom expert, suggest the best   plan equivalent for this competitor plan:
 
             Provider: {plan.Provider}
             Plan Details: {plan.Plan_Details}
             Price: {plan.Price}
             Observations: {plan.Observations}
-            Recommended Action for Telecom: {plan.Recommended_Action_for_Telecom}
+            Recommended Action for  : {plan.Recommended_Action_for_Telecom}
 
-            Based on the above information, provide a detailed description of an equivalent or better Telecom plan.
+            Based on the above information, provide a detailed description of an equivalent or better   plan.
             Include specific details like data allowance, voice minutes, SMS, validity period, and any special features.
-            If Telecom doesn't have a directly comparable plan, suggest the closest alternative or what Telecom should offer.
+            If   doesn't have a directly comparable plan, suggest the closest alternative or what   should offer.
 
             Respond ONLY with the plan details, formatted as a concise yet descriptive paragraph.
             """
 
-            # Call LLM to generate Telecom plan equivalent
+            # Call LLM to generate   plan equivalent
             Telecom_plan_response = llm.invoke(Telecom_plan_prompt)
 
             # Update the plan with the generated equivalent
@@ -561,10 +561,10 @@ def format_recommendations(state: GraphState) -> GraphState:
 
     # Create a prompt for the LLM to generate formatted recommendations
     prompt = f"""
-    You are a telecom product recommendation expert for Telecom. Format the extracted telecom plans into recommendations 
+    You are a telecom product recommendation expert for  . Format the extracted telecom plans into recommendations 
     that will be shown directly to users in a chatbot interface.
 
-    The following are competitor plans with their Telecom equivalents:
+    The following are competitor plans with their   equivalents:
     {json.dumps([{
         "Provider": plan.Provider,
         "Plan_Details": plan.Plan_Details,
@@ -576,27 +576,27 @@ def format_recommendations(state: GraphState) -> GraphState:
 
     User query: "{query}"
 
-    Select the top 3 most relevant Telecom plans from the Best_Suited_Plan_Equivalent field that best match the user's request.
+    Select the top 3 most relevant   plans from the Best_Suited_Plan_Equivalent field that best match the user's request.
     If there are fewer than 3 plans, include all of them.
 
     FORMAT YOUR RESPONSE EXACTLY LIKE THIS EXAMPLE:
 
-    **Here are the best curated Telecom recommendations for you:**
+    **Here are the best curated   recommendations for you:**
 
-    ### 1. Telecom Smart Data Bundle
+    ### 1.   Smart Data Bundle
     *High-speed data with extended validity*
     * **$5.00** *(valid 30 days)*
     * 🌐 Data: 2 GB
     * 📲 WhatsApp & Facebook: Unlimited
 
-    ### 2. Telecom Voice & Data Combo
+    ### 2.   Voice & Data Combo
     *Perfect balance of calls and internet*
     * **$10.00** *(valid 30 days)*
     * 📞 Minutes: 100 on-net, 50 off-net
     * 🌐 Data: 1.5 GB
     * 💬 SMS: 50
 
-    ### 3. Telecom Premium Bundle
+    ### 3.   Premium Bundle
     *Our most comprehensive package*
     * **$20.00** *(valid 30 days)*
     * 📞 Minutes: Unlimited on-net, 150 off-net
@@ -605,13 +605,13 @@ def format_recommendations(state: GraphState) -> GraphState:
     * 📲 Social Media: Unlimited
 
     **Observations:**
-    Telecom offers superior network coverage compared to competitors, with 98% population coverage nationwide. The recommended plans provide better value with longer validity periods and more flexible usage terms than similar competitor offerings.
+      offers superior network coverage compared to competitors, with 98% population coverage nationwide. The recommended plans provide better value with longer validity periods and more flexible usage terms than similar competitor offerings.
 
     **Why These Plans:**
-    These plans were selected because they offer the best match to your needs while providing better overall value compared to competitor options. Telecom's Premium Bundle gives you significantly more data and minutes at a similar price point to competitor alternatives, while our Voice & Data Combo provides the most balanced allocation for typical users.
+    These plans were selected because they offer the best match to your needs while providing better overall value compared to competitor options.  's Premium Bundle gives you significantly more data and minutes at a similar price point to competitor alternatives, while our Voice & Data Combo provides the most balanced allocation for typical users.
 
     YOUR RECOMMENDATIONS MUST FOLLOW THESE RULES:
-    1. Include only actual Telecom plans from the Best_Suited_Plan_Equivalent field
+    1. Include only actual   plans from the Best_Suited_Plan_Equivalent field
     2. If there are fewer than 3 plans, only include the actual plans you have data for
     3. Include a clear, bold product name with "###" heading
     4. Include an italicized short description
@@ -622,15 +622,15 @@ def format_recommendations(state: GraphState) -> GraphState:
        - 🌐 for data
        - 📲 for social media/WhatsApp
        - ⏱️ for validity period
-    7. Include "Observations" section highlighting Telecom's advantages over competitors
-    8. Include "Why These Plans" section explaining why these Telecom plans are better choices
+    7. Include "Observations" section highlighting  's advantages over competitors
+    8. Include "Why These Plans" section explaining why these   plans are better choices
 
     IMPORTANT GUIDELINES:
-    - Focus on the strengths of Telecom plans compared to competitors
+    - Focus on the strengths of   plans compared to competitors
     - Highlight any advantages in terms of price, data allocation, validity, or network quality
     - Make every recommendation sound enthusiastic and confident
-    - Use the information from both the competitor plans and their Telecom equivalents to make informed comparisons
-    - The recommendations should feel like they were written by an Telecom expert who genuinely believes these are excellent choices
+    - Use the information from both the competitor plans and their   equivalents to make informed comparisons
+    - The recommendations should feel like they were written by an   expert who genuinely believes these are excellent choices
 
     Your entire response must be in formatted markdown ready to display directly to the user.
     """
@@ -646,19 +646,19 @@ def format_recommendations(state: GraphState) -> GraphState:
         logging.error(f"Error generating recommendations: {str(e)}")
 
         # Create fallback formatted text
-        recommendations = "**Here are the best curated Telecom recommendations for you:**\n\n"
+        recommendations = "**Here are the best curated   recommendations for you:**\n\n"
 
         for i, plan in enumerate(formatted_data[:3], 1):
             Telecom_plan = plan.Best_Suited_Plan_Equivalent
 
-            recommendations += f"### {i}. Telecom Equivalent Plan\n"
+            recommendations += f"### {i}.   Equivalent Plan\n"
             recommendations += f"*{Telecom_plan}*\n\n"
 
         recommendations += "**Observations:**\n"
-        recommendations += "Telecom offers superior network quality and reliability compared to competitors.\n\n"
+        recommendations += "  offers superior network quality and reliability compared to competitors.\n\n"
 
         recommendations += "**Why These Plans:**\n"
-        recommendations += "These Telecom plans provide better overall value and coverage compared to competitor options."
+        recommendations += "These   plans provide better overall value and coverage compared to competitor options."
 
     # Update state with the recommendations and mark extraction as completed
     state["messages"] = [recommendations]
@@ -811,8 +811,8 @@ class TelecomPlan(BaseModel):
     Plan_Details: str = Field(description="Details of the telecom plan")
     Price: str = Field(description="Price of the plan")
     Observations: str = Field(description="Key observations about the plan")
-    Recommended_Action_for_Telecom: str = Field(description="Recommended action for Telecom based on this plan")
-    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent Telecom plan")
+    Recommended_Action_for_Telecom: str = Field(description="Recommended action for   based on this plan")
+    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent   plan")
 
 class TelecomPlans(BaseModel):
     plans: List[TelecomPlan]
