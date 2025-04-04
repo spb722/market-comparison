@@ -166,7 +166,7 @@ if prompt:
                             'Price': plan.Price,
                             'Observations': plan.Observations,
                             'Recommended_Action_for_Econet': plan.Recommended_Action_for_Econet,
-                            'Best_Suited_Econet_Plan_Equivalent': plan.Best_Suited_Econet_Plan_Equivalent
+                            'Best_Suited_Plan_Equivalent': plan.Best_Suited_Plan_Equivalent
                         })
                     # Create the DataFrame
                     st.session_state.telecom_data = pd.DataFrame(telecom_data)
