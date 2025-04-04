@@ -393,7 +393,7 @@ def search_with_tavily(state: GraphState) -> GraphState:
                 "role": "user",
                 "content": query + " Your goal is to find the best-priced offerings. "
         "You must present your findings clearly in a comparison table with columns for Provider, Plan Details, Price, Observations, "
-        "Recommended Action for Econet, and Best Suited Econet Plan Equivalent. Provide clear explanations and actionable insights."
+        "Recommended Action for Telecom, and Best Suited Telecom Plan Equivalent. Provide clear explanations and actionable insights."
                 "do multiple web search to get all the products "
             }
         ],
@@ -410,8 +410,8 @@ class TelecomPlan(BaseModel):
     Plan_Details: str = Field(description="Details of the telecom plan")
     Price: str = Field(description="Price of the plan")
     Observations: str = Field(description="Key observations about the plan")
-    Recommended_Action_for_Econet: str = Field(description="Recommended action for Econet based on this plan")
-    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent Econet plan")
+    Recommended_Action_for_Telecom: str = Field(description="Recommended action for Telecom based on this plan")
+    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent Telecom plan")
 
 class TelecomPlans(BaseModel):
     plans: List[TelecomPlan]
@@ -420,7 +420,7 @@ def extract_content(state: Dict[str, str]) -> Dict[str, Any]:
     search_results = state["search_results"]
     prompt = (
         "You are an expert telecom data analyst. Structure the raw telecom data into a structured list of telecom plans as JSON. "
-        "Each entry must contain Provider, Plan_Details, Price, Observations, Recommended_Action_for_Econet, and Best_Suited_Plan_Equivalent."
+        "Each entry must contain Provider, Plan_Details, Price, Observations, Recommended_Action_for_Telecom, and Best_Suited_Plan_Equivalent."
         "these are the search results  "
     )
     messages = [{"role": "system", "content": prompt}] + [search_results]
@@ -434,25 +434,25 @@ def extract_content(state: Dict[str, str]) -> Dict[str, Any]:
         # Check if Best_Suited_Plan_Equivalent is missing or empty
         if not hasattr(plan,
                        'Best_Suited_Plan_Equivalent') or not plan.Best_Suited_Plan_Equivalent or plan.Best_Suited_Plan_Equivalent == "N/A":
-            # Create prompt for the LLM to generate Econet plan equivalent
-            econet_plan_prompt = f"""
-            As a telecom expert, suggest the best Econet plan equivalent for this competitor plan:
+            # Create prompt for the LLM to generate Telecom plan equivalent
+            Telecom_plan_prompt = f"""
+            As a telecom expert, suggest the best Telecom plan equivalent for this competitor plan:
 
             Provider: {plan.Provider}
             Plan Details: {plan.Plan_Details}
             Price: {plan.Price}
             Observations: {plan.Observations}
-            Recommended Action for Econet: {plan.Recommended_Action_for_Econet}
+            Recommended Action for Telecom: {plan.Recommended_Action_for_Telecom}
 
-            Based on the above information, provide a detailed description of an equivalent or better Econet plan.
+            Based on the above information, provide a detailed description of an equivalent or better Telecom plan.
             Include specific details like data allowance, voice minutes, SMS, validity period, and any special features.
-            If Econet doesn't have a directly comparable plan, suggest the closest alternative or what Econet should offer.
+            If Telecom doesn't have a directly comparable plan, suggest the closest alternative or what Telecom should offer.
 
             Respond ONLY with the plan details, formatted as a concise yet descriptive paragraph.
             """
 
-            # Call LLM to generate Econet plan equivalent
-            econet_plan_response = llm.invoke(econet_plan_prompt)
+            # Call LLM to generate Telecom plan equivalent
+            Telecom_plan_response = llm.invoke(Telecom_plan_prompt)
 
             # Update the plan with the generated equivalent
             plan_dict = {
@@ -460,8 +460,8 @@ def extract_content(state: Dict[str, str]) -> Dict[str, Any]:
                 'Plan_Details': plan.Plan_Details,
                 'Price': plan.Price,
                 'Observations': plan.Observations,
-                'Recommended_Action_for_Econet': plan.Recommended_Action_for_Econet,
-                'Best_Suited_Plan_Equivalent': econet_plan_response.content.strip()
+                'Recommended_Action_for_Telecom': plan.Recommended_Action_for_Telecom,
+                'Best_Suited_Plan_Equivalent': Telecom_plan_response.content.strip()
             }
             updated_plans.append(TelecomPlan(**plan_dict))
         else:
@@ -561,42 +561,42 @@ def format_recommendations(state: GraphState) -> GraphState:
 
     # Create a prompt for the LLM to generate formatted recommendations
     prompt = f"""
-    You are a telecom product recommendation expert for Econet. Format the extracted telecom plans into recommendations 
+    You are a telecom product recommendation expert for Telecom. Format the extracted telecom plans into recommendations 
     that will be shown directly to users in a chatbot interface.
 
-    The following are competitor plans with their Econet equivalents:
+    The following are competitor plans with their Telecom equivalents:
     {json.dumps([{
         "Provider": plan.Provider,
         "Plan_Details": plan.Plan_Details,
         "Price": plan.Price,
         "Observations": plan.Observations,
-        "Recommended_Action_for_Econet": plan.Recommended_Action_for_Econet,
+        "Recommended_Action_for_Telecom": plan.Recommended_Action_for_Telecom,
         "Best_Suited_Plan_Equivalent": plan.Best_Suited_Plan_Equivalent
     } for plan in formatted_data], indent=2)}
 
     User query: "{query}"
 
-    Select the top 3 most relevant Econet plans from the Best_Suited_Plan_Equivalent field that best match the user's request.
+    Select the top 3 most relevant Telecom plans from the Best_Suited_Plan_Equivalent field that best match the user's request.
     If there are fewer than 3 plans, include all of them.
 
     FORMAT YOUR RESPONSE EXACTLY LIKE THIS EXAMPLE:
 
-    **Here are the best curated Econet recommendations for you:**
+    **Here are the best curated Telecom recommendations for you:**
 
-    ### 1. Econet Smart Data Bundle
+    ### 1. Telecom Smart Data Bundle
     *High-speed data with extended validity*
     * **$5.00** *(valid 30 days)*
     * 🌐 Data: 2 GB
     * 📲 WhatsApp & Facebook: Unlimited
 
-    ### 2. Econet Voice & Data Combo
+    ### 2. Telecom Voice & Data Combo
     *Perfect balance of calls and internet*
     * **$10.00** *(valid 30 days)*
     * 📞 Minutes: 100 on-net, 50 off-net
     * 🌐 Data: 1.5 GB
     * 💬 SMS: 50
 
-    ### 3. Econet Premium Bundle
+    ### 3. Telecom Premium Bundle
     *Our most comprehensive package*
     * **$20.00** *(valid 30 days)*
     * 📞 Minutes: Unlimited on-net, 150 off-net
@@ -605,13 +605,13 @@ def format_recommendations(state: GraphState) -> GraphState:
     * 📲 Social Media: Unlimited
 
     **Observations:**
-    Econet offers superior network coverage compared to competitors, with 98% population coverage nationwide. The recommended plans provide better value with longer validity periods and more flexible usage terms than similar competitor offerings.
+    Telecom offers superior network coverage compared to competitors, with 98% population coverage nationwide. The recommended plans provide better value with longer validity periods and more flexible usage terms than similar competitor offerings.
 
     **Why These Plans:**
     These plans were selected because they offer the best match to your needs while providing better overall value compared to competitor options. Telecom's Premium Bundle gives you significantly more data and minutes at a similar price point to competitor alternatives, while our Voice & Data Combo provides the most balanced allocation for typical users.
 
     YOUR RECOMMENDATIONS MUST FOLLOW THESE RULES:
-    1. Include only actual Econet plans from the Best_Suited_Plan_Equivalent field
+    1. Include only actual Telecom plans from the Best_Suited_Plan_Equivalent field
     2. If there are fewer than 3 plans, only include the actual plans you have data for
     3. Include a clear, bold product name with "###" heading
     4. Include an italicized short description
@@ -623,14 +623,14 @@ def format_recommendations(state: GraphState) -> GraphState:
        - 📲 for social media/WhatsApp
        - ⏱️ for validity period
     7. Include "Observations" section highlighting Telecom's advantages over competitors
-    8. Include "Why These Plans" section explaining why these Econet plans are better choices
+    8. Include "Why These Plans" section explaining why these Telecom plans are better choices
 
     IMPORTANT GUIDELINES:
-    - Focus on the strengths of Econet plans compared to competitors
+    - Focus on the strengths of Telecom plans compared to competitors
     - Highlight any advantages in terms of price, data allocation, validity, or network quality
     - Make every recommendation sound enthusiastic and confident
-    - Use the information from both the competitor plans and their Econet equivalents to make informed comparisons
-    - The recommendations should feel like they were written by an Econet expert who genuinely believes these are excellent choices
+    - Use the information from both the competitor plans and their Telecom equivalents to make informed comparisons
+    - The recommendations should feel like they were written by an Telecom expert who genuinely believes these are excellent choices
 
     Your entire response must be in formatted markdown ready to display directly to the user.
     """
@@ -646,19 +646,19 @@ def format_recommendations(state: GraphState) -> GraphState:
         logging.error(f"Error generating recommendations: {str(e)}")
 
         # Create fallback formatted text
-        recommendations = "**Here are the best curated Econet recommendations for you:**\n\n"
+        recommendations = "**Here are the best curated Telecom recommendations for you:**\n\n"
 
         for i, plan in enumerate(formatted_data[:3], 1):
-            econet_plan = plan.Best_Suited_Plan_Equivalent
+            Telecom_plan = plan.Best_Suited_Plan_Equivalent
 
-            recommendations += f"### {i}. Econet Equivalent Plan\n"
-            recommendations += f"*{econet_plan}*\n\n"
+            recommendations += f"### {i}. Telecom Equivalent Plan\n"
+            recommendations += f"*{Telecom_plan}*\n\n"
 
         recommendations += "**Observations:**\n"
-        recommendations += "Econet offers superior network quality and reliability compared to competitors.\n\n"
+        recommendations += "Telecom offers superior network quality and reliability compared to competitors.\n\n"
 
         recommendations += "**Why These Plans:**\n"
-        recommendations += "These Econet plans provide better overall value and coverage compared to competitor options."
+        recommendations += "These Telecom plans provide better overall value and coverage compared to competitor options."
 
     # Update state with the recommendations and mark extraction as completed
     state["messages"] = [recommendations]
@@ -811,8 +811,8 @@ class TelecomPlan(BaseModel):
     Plan_Details: str = Field(description="Details of the telecom plan")
     Price: str = Field(description="Price of the plan")
     Observations: str = Field(description="Key observations about the plan")
-    Recommended_Action_for_Econet: str = Field(description="Recommended action for Econet based on this plan")
-    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent Econet plan")
+    Recommended_Action_for_Telecom: str = Field(description="Recommended action for Telecom based on this plan")
+    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent Telecom plan")
 
 class TelecomPlans(BaseModel):
     plans: List[TelecomPlan]
