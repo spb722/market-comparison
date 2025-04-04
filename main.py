@@ -204,7 +204,7 @@ def follow_up(state: GraphState) -> GraphState:
 
         # Use structured output to extract the selection
         selection_prompt = f"""
-        Based on the user's message, determine which Econet plan they want to select.
+        Based on the user's message, determine which Telecom plan they want to select.
 
         Recommendations provided earlier:
         {formatted_text}
@@ -212,7 +212,7 @@ def follow_up(state: GraphState) -> GraphState:
         User message:
         "{user_feedback}"
 
-        Extract the name of the selected Econet plan. It should be one of the plans mentioned 
+        Extract the name of the selected telecom plan. It should be one of the plans mentioned 
         in the recommendations. Look for phrases like "I want", "I'd like", "select", etc.
 
         Return the exact plan name as mentioned in the recommendations.
@@ -383,11 +383,11 @@ def search_with_tavily(state: GraphState) -> GraphState:
         messages=[
             {
                 "role": "assistant", 
-                "content": "You are an expert telecom consultant working for Econet Zimbabwe. Your task is to analyze telecom product offerings from competitors like Telecel,"
+                "content": "You are an expert telecom consultant . Your task is to analyze telecom product offerings from their competitors ,"
                            " NetOne, and other telecom providers which the user shall provide found via internet search."
                            " Your goal is to find the best-priced offerings. "
         "You must present your findings clearly in a comparison table with columns for Provider, Plan Details, Price, Observations, "
-        "Recommended Action for Econet, and Best Suited Econet Plan Equivalent. Provide clear explanations and actionable insights."
+        "Recommended Action for the users telecom , and Best  Plan Equivalent. Provide clear explanations and actionable insights."
             },
             {
                 "role": "user",
