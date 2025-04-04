@@ -411,7 +411,7 @@ class TelecomPlan(BaseModel):
     Price: str = Field(description="Price of the plan")
     Observations: str = Field(description="Key observations about the plan")
     Recommended_Action_for_Econet: str = Field(description="Recommended action for Econet based on this plan")
-    Best_Suited_Econet_Plan_Equivalent: str = Field(description="Best suited equivalent Econet plan")
+    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent Econet plan")
 
 class TelecomPlans(BaseModel):
     plans: List[TelecomPlan]
@@ -420,20 +420,20 @@ def extract_content(state: Dict[str, str]) -> Dict[str, Any]:
     search_results = state["search_results"]
     prompt = (
         "You are an expert telecom data analyst. Structure the raw telecom data into a structured list of telecom plans as JSON. "
-        "Each entry must contain Provider, Plan_Details, Price, Observations, Recommended_Action_for_Econet, and Best_Suited_Econet_Plan_Equivalent."
+        "Each entry must contain Provider, Plan_Details, Price, Observations, Recommended_Action_for_Econet, and Best_Suited_Plan_Equivalent."
         "these are the search results  "
     )
     messages = [{"role": "system", "content": prompt}] + [search_results]
     structured_response = llm.with_structured_output(TelecomPlans).invoke(messages)
 
-    # Check for missing or empty Best_Suited_Econet_Plan_Equivalent fields
+    # Check for missing or empty Best_Suited_Plan_Equivalent fields
     plans = structured_response.plans
     updated_plans = []
 
     for plan in plans:
-        # Check if Best_Suited_Econet_Plan_Equivalent is missing or empty
+        # Check if Best_Suited_Plan_Equivalent is missing or empty
         if not hasattr(plan,
-                       'Best_Suited_Econet_Plan_Equivalent') or not plan.Best_Suited_Econet_Plan_Equivalent or plan.Best_Suited_Econet_Plan_Equivalent == "N/A":
+                       'Best_Suited_Plan_Equivalent') or not plan.Best_Suited_Plan_Equivalent or plan.Best_Suited_Plan_Equivalent == "N/A":
             # Create prompt for the LLM to generate Econet plan equivalent
             econet_plan_prompt = f"""
             As a telecom expert, suggest the best Econet plan equivalent for this competitor plan:
@@ -461,11 +461,11 @@ def extract_content(state: Dict[str, str]) -> Dict[str, Any]:
                 'Price': plan.Price,
                 'Observations': plan.Observations,
                 'Recommended_Action_for_Econet': plan.Recommended_Action_for_Econet,
-                'Best_Suited_Econet_Plan_Equivalent': econet_plan_response.content.strip()
+                'Best_Suited_Plan_Equivalent': econet_plan_response.content.strip()
             }
             updated_plans.append(TelecomPlan(**plan_dict))
         else:
-            # Keep the original plan if Best_Suited_Econet_Plan_Equivalent is present
+            # Keep the original plan if Best_Suited_Plan_Equivalent is present
             updated_plans.append(plan)
 
     return {"formatted_data": updated_plans, "messages": state.get("messages", [])}
@@ -545,7 +545,7 @@ def extract_content(state: Dict[str, str]) -> Dict[str, Any]:
 def format_recommendations(state: GraphState) -> GraphState:
     """
     Format extracted telecom plans into chatbot-friendly recommendations with
-    observations and rationale based on the Best_Suited_Econet_Plan_Equivalent field.
+    observations and rationale based on the Best_Suited_Plan_Equivalent field.
     """
     formatted_data = state.get("formatted_data", [])
     query = state.get("query", "")
@@ -571,12 +571,12 @@ def format_recommendations(state: GraphState) -> GraphState:
         "Price": plan.Price,
         "Observations": plan.Observations,
         "Recommended_Action_for_Econet": plan.Recommended_Action_for_Econet,
-        "Best_Suited_Econet_Plan_Equivalent": plan.Best_Suited_Econet_Plan_Equivalent
+        "Best_Suited_Plan_Equivalent": plan.Best_Suited_Plan_Equivalent
     } for plan in formatted_data], indent=2)}
 
     User query: "{query}"
 
-    Select the top 3 most relevant Econet plans from the Best_Suited_Econet_Plan_Equivalent field that best match the user's request.
+    Select the top 3 most relevant Econet plans from the Best_Suited_Plan_Equivalent field that best match the user's request.
     If there are fewer than 3 plans, include all of them.
 
     FORMAT YOUR RESPONSE EXACTLY LIKE THIS EXAMPLE:
@@ -611,7 +611,7 @@ def format_recommendations(state: GraphState) -> GraphState:
     These plans were selected because they offer the best match to your needs while providing better overall value compared to competitor options. Econet's Premium Bundle gives you significantly more data and minutes at a similar price point to competitor alternatives, while our Voice & Data Combo provides the most balanced allocation for typical users.
 
     YOUR RECOMMENDATIONS MUST FOLLOW THESE RULES:
-    1. Include only actual Econet plans from the Best_Suited_Econet_Plan_Equivalent field
+    1. Include only actual Econet plans from the Best_Suited_Plan_Equivalent field
     2. If there are fewer than 3 plans, only include the actual plans you have data for
     3. Include a clear, bold product name with "###" heading
     4. Include an italicized short description
@@ -649,7 +649,7 @@ def format_recommendations(state: GraphState) -> GraphState:
         recommendations = "**Here are the best curated Econet recommendations for you:**\n\n"
 
         for i, plan in enumerate(formatted_data[:3], 1):
-            econet_plan = plan.Best_Suited_Econet_Plan_Equivalent
+            econet_plan = plan.Best_Suited_Plan_Equivalent
 
             recommendations += f"### {i}. Econet Equivalent Plan\n"
             recommendations += f"*{econet_plan}*\n\n"
@@ -812,7 +812,7 @@ class TelecomPlan(BaseModel):
     Price: str = Field(description="Price of the plan")
     Observations: str = Field(description="Key observations about the plan")
     Recommended_Action_for_Econet: str = Field(description="Recommended action for Econet based on this plan")
-    Best_Suited_Econet_Plan_Equivalent: str = Field(description="Best suited equivalent Econet plan")
+    Best_Suited_Plan_Equivalent: str = Field(description="Best suited equivalent Econet plan")
 
 class TelecomPlans(BaseModel):
     plans: List[TelecomPlan]
