@@ -76,7 +76,7 @@ with st.sidebar:
     - Strategic recommendations
 
     **Example queries:**
-    - "can you recommend proper plans for Econet based on telecel and netone data "
+    - "can you recommend proper plans for Telecom based on telecel and netone data "
     - "Compare NetOne and Telecel voice packages"
   
     """)
@@ -165,7 +165,7 @@ if prompt:
                             'Plan_Details': plan.Plan_Details,
                             'Price': plan.Price,
                             'Observations': plan.Observations,
-                            'Recommended_Action_for_Econet': plan.Recommended_Action_for_Econet,
+                            'Recommended_Action_for_Telecom': plan.Recommended_Action_for_Telecom,
                             'Best_Suited_Plan_Equivalent': plan.Best_Suited_Plan_Equivalent
                         })
                     # Create the DataFrame
